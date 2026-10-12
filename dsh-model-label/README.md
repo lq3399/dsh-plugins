@@ -127,31 +127,55 @@ const inject = ['slots', 'locale', 'sessions', 'remote', 'remote.session']
 ## 安装
 
 本插件住在 [`lq3399/dsh-plugins`](https://github.com/lq3399/dsh-plugins) 仓库的
-`dsh-model-label/` 目录里（每个插件一层顶层目录）。在 profile 目录
-（默认 `~/.dsh/profiles/desktop`）里，用 `path:` 指定子目录装：
+`dsh-model-label/` 目录里（每个插件一层顶层目录）。用 DSH 自带的插件命令从仓库装：
 
 ```bash
-pnpm add github:lq3399/dsh-plugins#path:/dsh-model-label
+dsh plugin --profile desktop add "github:lq3399/dsh-plugins#path:/dsh-model-label"
 ```
+
+`#path:/dsh-model-label` 是 pnpm 的子目录语法：`#` 前是仓库，`path:` 指向包所在的
+顶层目录。本仓库不是 monorepo，没有 `pnpm-workspace.yaml`，所以这个 `path:` 是
+**必需**的 —— 少了它 pnpm 会去找仓库根，而根上没有 `package.json`。
+
+**spec 一定要加引号。** `&` 在 PowerShell、cmd 和 bash 里都是控制字符：不加引号
+会被 shell 从 `&` 处截成两条命令，安装静默地只装到一半（PowerShell 里表现为
+后台任务，cmd 里表现为「path:/... 不是内部或外部命令」）。
 
 也可以钉住分支或提交：
 
 ```bash
-pnpm add github:lq3399/dsh-plugins#main&path:/dsh-model-label
-pnpm add github:lq3399/dsh-plugins#<commit-sha>&path:/dsh-model-label
+dsh plugin --profile desktop add "github:lq3399/dsh-plugins#main&path:/dsh-model-label"
+dsh plugin --profile desktop add "github:lq3399/dsh-plugins#<commit-sha>&path:/dsh-model-label"
 ```
 
-或克隆到本地后链接（改代码即时生效）：
+`--profile desktop` 是必需的：桌面端 profile 由应用独占管理，`dsh` 会带上应用
+自己的 pnpm 与授权去改它。安装完成后不用手工编辑任何配置 —— 命令会自动把
+`dsh-model-label` 写进该 profile `package.json` 的 `dependencies`，并因为本包声明了
+`dsh.bundle.patch` 而把它追加进 `dsh.profile.bundles`。bundle 列表的这次变动由管理器
+热应用，刷新窗口即可看到效果（`client.js` 本身的改动在 HMR 监听下刷新页面即可）。
+
+## 卸载
+
+```bash
+dsh plugin --profile desktop remove dsh-model-label
+```
+
+`dependencies` 里的条目和 `dsh.profile.bundles` 里的那一行会一并移除。若窗口里
+模型位仍显示旧样式，刷新页面即可。
+
+## 本地开发
+
+改代码要即时生效，就把工作副本 link 进 profile（`link:` 建符号链接，改完
+`client.js` 刷新页面即可，不需要重装）：
 
 ```bash
 git clone https://github.com/lq3399/dsh-plugins.git
-cd ~/.dsh/profiles/desktop
-pnpm add link:/path/to/dsh-plugins/dsh-model-label
+dsh plugin --profile desktop add "link:/path/to/dsh-plugins/dsh-model-label"
 ```
 
-再把 `dsh-model-label` 加进该目录 `package.json` 的 `dsh.profile.bundles`，
-或直接在「设置 → 插件」里启用。**改动 bundle 列表需要重载窗口**（Loader 树是
-启动时组装的）；`client.js` 本身的改动在 HMR 监听下刷新页面即可。
+本地路径必须是**绝对路径**，且只能走 `link:` / `file:` 前缀：官方安装解析器拒绝
+相对路径（相对路径会相对 profile 目录解析，指向 profile 内部）。开发期用 `link:`
+而不是 `file:` —— 后者会把目录硬链接进 store，改源码不即时反映。
 
 ## 保留了什么
 

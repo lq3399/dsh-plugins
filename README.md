@@ -24,31 +24,50 @@ dsh-plugins/
 
 ## 安装
 
-从本仓库安装某个插件，用 pnpm 的 `path:` 参数指定子目录（**注意 `#` 前是仓库、
-`path:` 指向顶层目录**）：
+用 DSH 自带的插件命令从本仓库装某个插件，用 pnpm 的 `path:` 参数指定子目录
+（**注意 `#` 前是仓库、`path:` 指向顶层目录**）：
 
 ```bash
-# 在 profile 目录里执行（默认 ~/.dsh/profiles/desktop）
-pnpm add github:lq3399/dsh-plugins#path:/dsh-model-label
+dsh plugin --profile desktop add "github:lq3399/dsh-plugins#path:/dsh-model-label"
 ```
+
+本仓库不是 monorepo（没有 `pnpm-workspace.yaml`），所以 `path:` 是**必需**的 ——
+少了它 pnpm 会去找仓库根，而根上没有 `package.json`。
+
+**spec 一定要加引号。** `&` 在 PowerShell、cmd 和 bash 里都是控制字符：不加引号
+会被 shell 从 `&` 处截成两条命令，安装静默地只装到一半。
 
 也可以钉住分支或提交：
 
 ```bash
-pnpm add github:lq3399/dsh-plugins#main&path:/dsh-model-label
-pnpm add github:lq3399/dsh-plugins#<commit-sha>&path:/dsh-model-label
+dsh plugin --profile desktop add "github:lq3399/dsh-plugins#main&path:/dsh-model-label"
+dsh plugin --profile desktop add "github:lq3399/dsh-plugins#<commit-sha>&path:/dsh-model-label"
 ```
 
-再把包名加进该 profile `package.json` 的 `dsh.profile.bundles`，或在
-「设置 → 插件」里启用。**改动 bundle 列表需要重载窗口**（Loader 树是启动时组装的）。
+安装命令会自动把包名写进该 profile `package.json` 的 `dependencies`，并因为插件声明了
+`dsh.bundle.patch` 而把它追加进 `dsh.profile.bundles`。bundle 列表的变动由管理器热应用，
+刷新窗口即可看到效果。
 
-改代码时要即时生效，就克隆后本地 link：
+## 卸载
+
+```bash
+dsh plugin --profile desktop remove dsh-model-label
+```
+
+`dependencies` 里的条目和 `dsh.profile.bundles` 里的那一行会一并移除。
+
+## 本地开发
+
+改代码时要即时生效，就克隆后本地 link（`link:` 建符号链接，改完刷新页面即可）：
 
 ```bash
 git clone https://github.com/lq3399/dsh-plugins.git
-cd ~/.dsh/profiles/desktop
-pnpm add link:/path/to/dsh-plugins/dsh-model-label
+dsh plugin --profile desktop add "link:/path/to/dsh-plugins/dsh-model-label"
 ```
+
+本地路径必须是**绝对路径**，且只能走 `link:` / `file:` 前缀（官方安装解析器拒绝
+相对路径）。开发期用 `link:` 而不是 `file:` —— 后者会把目录硬链接进 store，改源码
+不即时反映。
 
 ## 新增一个插件
 
@@ -59,8 +78,8 @@ pnpm add link:/path/to/dsh-plugins/dsh-model-label
 
 ## 约定
 
-- **不用工作区**：各插件之间没有依赖关系，每层目录都是一个可独立
-  `pnpm add` 的完整包，因此本仓库没有 `pnpm-workspace.yaml`。
+- **不用工作区**：各插件之间没有依赖关系，每层目录都是一个可独立安装的完整包，
+  因此本仓库没有 `pnpm-workspace.yaml`（安装时用 `path:` 指定子目录）。
 - **不改官方包**：插件通过 Slot 遮蔽（`priority` 抢占 `single` cell）生效，
   升级 DSH 不会冲突。
 - **自带验证**：每个插件的检查脚本放在自己目录下，`npm test` 即可运行。
