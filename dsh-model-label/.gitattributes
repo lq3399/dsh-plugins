@@ -1,0 +1,8 @@
+# Store LF in the repository; check out native endings. These are all text
+# sources, and the DSH client bundle is shipped verbatim, so a stray CRLF in
+# `client.js` would be a real (if harmless) diff.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.woff2 binary

@@ -1,0 +1,9 @@
+# dsh-model-label bundle patch.
+#
+# One insert mounts the Host half; the browser half is declared by
+# package.json's dsh.client and binds to the row whose name is the bare package
+# name (a subpath row would not carry it).
+- insert:
+    - id: dsh-model-label
+      name: 'dsh-model-label'
+      config: {}

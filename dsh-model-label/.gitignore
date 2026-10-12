@@ -1,0 +1,12 @@
+# The render check's dev-only peers, when installed locally
+node_modules/
+
+# Packed tarballs, if packed in place
+*.tgz
+
+# Editor / OS noise
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+*.log

@@ -1,0 +1,48 @@
+{
+  "name": "dsh-model-label",
+  "version": "1.1.1",
+  "private": true,
+  "type": "module",
+  "description": "Show the composer's model seat as {provider}/{model} · {effort} in the bottom-right corner of the DSH Web GUI, with a provider-folded tree for the model list.",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": []
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "~4.0.4"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "test": "node _headless-check.cjs && node _coldstart-check.cjs && node _render-check.cjs",
+    "test:headless": "node _headless-check.cjs",
+    "test:coldstart": "node _coldstart-check.cjs",
+    "test:render": "node _render-check.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "^24.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
