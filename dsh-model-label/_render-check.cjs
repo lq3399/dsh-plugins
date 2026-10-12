@@ -20,9 +20,8 @@ const fs = require('node:fs')
 
 // react / react-dom / jsdom are NOT plugin dependencies — the shell provides
 // React at runtime. They are devDependencies of this repo, needed only by this
-// check. Resolve from a local install, falling back to the scratch install used
-// while the plugin lived inside the DSH workspace.
-const PEER_ROOTS = [__dirname, path.join(__dirname, '..', '.verify')]
+// check, so resolve them from this directory's local install.
+const PEER_ROOTS = [__dirname]
 const resolveModule = name => {
   for (const base of PEER_ROOTS) {
     try {
